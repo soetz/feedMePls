@@ -1,2 +1,2 @@
 # FEED ME PlayLiSts
-JS audio/video RSS feed player
+JS audio/video RSS feed player, designed for podcast
