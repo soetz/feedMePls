@@ -1,0 +1,78 @@
+/* --- GLOBAL --- */
+
+body {
+  margin: 0;
+  height: 100%;
+}
+
+/* --- SEPARATOR --- */
+
+#separator {
+  display: flex;
+  height: 100vh;
+}
+
+/* --- LEFT PANEL --- */
+
+#left-panel {
+  background-color: #f00;
+}
+
+.channel-select-mode #left-panel {
+  flex: 30%;
+}
+
+.video-mode #left-panel {
+  flex: 70%;
+}
+
+/* --- VIDEO PLAY --- */
+
+.channel-select-mode #video-play {
+  display: none;
+}
+
+/* --- CHANNEL SELECTION --- */
+
+.video-mode #channel-select {
+  display: none;
+}
+
+/* --- RIGHT PANEL --- */
+
+#right-panel {
+  background-color: #0f0;
+}
+
+.channel-select-mode #right-panel {
+  flex: 70%
+}
+
+.video-mode #right-panel {
+  flex: 30%;
+}
+
+/* --- PLAYER --- */
+
+#player {
+  background-color: #00f;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 200px;
+  z-index: 1;
+}
+
+/* --- PLAYER IMAGE --- */
+
+#player-image {
+  background-color: #ff0;
+  position: fixed;
+  left: 0;
+  height: 100%;
+  width: 200px;
+}
+
+.video-mode #player-image {
+    display: none;
+}
