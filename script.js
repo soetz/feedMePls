@@ -44,6 +44,8 @@ function refreshFeeds() {
         if(request.status === 200){
 
           var rssXml = request.responseXML;
+          
+          console.log(rssXml);
 
           if(rssXml === null) {
             if(window.DOMParser) {
@@ -97,7 +99,7 @@ function refreshFeeds() {
 }
 
 function addFeed(feed) {
-  if(!feeds.contains(feed)) {
+  if(!feeds.includes(feed)) {
     feeds.push(feed);
     refreshFeeds();
   }
