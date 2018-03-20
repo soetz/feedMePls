@@ -3,6 +3,8 @@
 body {
   margin: 0;
   height: 100%;
+  min-height: 600px;
+  min-width: 800px;
   font-family: 'Nunito', sans-serif;
   color: white;
 }
@@ -18,10 +20,12 @@ body {
 
 #left-panel {
   background-color: #2a2a2a;
+  padding-bottom: 200px;
 }
 
 .channel-select-mode #left-panel {
   flex: 30%;
+  max-width: 400px;
 }
 
 .video-mode #left-panel {
@@ -40,21 +44,85 @@ body {
   display: none;
 }
 
+#channel-select-wrapper {
+  height: 100%;
+  overflow: auto;
+}
+
+#channel-controls {
+    background-color: #222;
+    position: relative;
+    height: 36px;
+    margin-bottom: 12px;
+    padding-top: 12px;
+}
+
+#add-channel-field-wrapper {
+  padding-right: 106px;
+  padding-left: 10px;
+}
+
+#add-channel-field {
+  width: 100%
+}
+
+#channel-controls-floating {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+}
+
+#add-button-wrapper, #refresh-button-wrapper {
+  height: 40px;
+  margin-top: 13px;
+  cursor: pointer;
+}
+
+#add-button-icon {
+  height: 40px;
+  width: 40px;
+}
+
+#refresh-button-icon {
+  height: 38px;
+  width: 38px;
+}
+
 .channel-container {
   text-align: justify;
   border-style: solid;
   border-width: 0 0 1px 0;
-  border-color: rgba(0, 0, 0, 0.5);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.channel-title-wrapper {
+  cursor: pointer;
+  position: relative;
+  padding-right: 14px;
+}
+
+.selected .channel-title-wrapper, .channel-title-wrapper:hover {
+  background-color: #222;
 }
 
 .channel-title {
   font-weight: 700;
   font-size: 1.4em;
-  padding-left: 10px;
-  padding-right: 10px;
-  width: 100%;
+  text-align: left;
   display: block;
-  cursor: pointer;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.channel-close-wrapper {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+}
+
+.channel-close-icon {
+  height: 28px;
+  width: 28px;
 }
 
 .channel-content {
@@ -63,10 +131,6 @@ body {
 
 .selected .channel-content {
   display: block;
-}
-
-.selected .channel-title {
-  background-color: #222;
 }
 
 .channel-description {
@@ -91,7 +155,7 @@ body {
 /* --- RIGHT PANEL --- */
 
 #right-panel {
-  background-color: #0f0;
+  background-color: #fff;
 }
 
 .channel-select-mode #right-panel {
@@ -105,7 +169,7 @@ body {
 /* --- PLAYER --- */
 
 #player {
-  background-color: #00f;
+  background-color: #ddd;
   position: fixed;
   bottom: 0;
   width: 100%;
@@ -116,7 +180,7 @@ body {
 /* --- PLAYER IMAGE --- */
 
 #player-image {
-  background-color: #ff0;
+  background-color: #bbb;
   position: fixed;
   left: 0;
   height: 100%;
