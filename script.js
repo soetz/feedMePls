@@ -44,8 +44,6 @@ function refreshFeeds() {
         if(request.status === 200){
 
           var rssXml = request.responseXML;
-          
-          console.log(rssXml);
 
           if(rssXml === null) {
             if(window.DOMParser) {
@@ -129,9 +127,7 @@ function setVideoMode(){
 
 function refreshView(){
   var channelSelectPanel = document.getElementById("channel-select");
-  while (channelSelectPanel.hasChildNodes()) {
-      channelSelectPanel.removeChild(channelSelectPanel.firstChild);
-  }
+  removeAllChildren(channelSelectPanel);
 
   channels.forEach(function(channel) {
     var container = document.createElement("div");
@@ -178,15 +174,57 @@ function refreshView(){
           }
         }
 
+        channels.forEach(function(chan) {
+          chan.selected = false;
+        });
+
         container.className += " selected";
+        channel.selected = true;
       }
       else {
         container.classList.remove("selected");
+        channel.selected = false;
       }
+
+      updatePodcasts();
     });
 
     channelSelectPanel.appendChild(container);
   });
+}
+
+function updatePodcasts() {
+  var podcastSelectPanel = document.getElementById("podcast-select");
+  removeAllChildren(podcastSelectPanel);
+
+  channels.forEach(function(channel) {
+    if(channel.selected) {
+      channel.items.forEach(function(item) {
+        var container = document.createElement("div");
+        container.setAttribute("class", "podcast-container");
+        var podcastWrapper = document.createElement("a");
+        podcastWrapper.setAttribute("class", "podcast-wrapper");
+        var title = document.createElement("span");
+        title.setAttribute("class", "podcast-title");
+        title.textContent = item.title;
+        var description = document.createElement("span");
+        description.setAttribute("class", "podcast-description");
+        description.textContent = " ||| " + item.description;
+
+        podcastWrapper.appendChild(title);
+        podcastWrapper.appendChild(description);
+        container.appendChild(podcastWrapper);
+
+        podcastSelectPanel.appendChild(container);
+      });
+    }
+  });
+}
+
+function removeAllChildren(node) {
+  while(node.hasChildNodes()){
+    node.removeChild(node.firstChild);
+  }
 }
 
 function getTextContent(object) {

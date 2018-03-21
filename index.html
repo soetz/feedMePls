@@ -5,6 +5,7 @@
       feed me pls
     </title>
     <meta charset="utf-8"/>
+    <link rel="icon" href="assets/ic_rss_feed_black_48dp_2x.png" />
     <link rel="stylesheet" href="style.css"/>
     <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,700&amp;subset=latin-ext" rel="stylesheet">
   </head>
@@ -18,7 +19,7 @@
         <div id="channel-select-wrapper">
           <div id="channel-controls">
             <div id="add-channel-field-wrapper">
-              <input id="add-channel-field" type="text">
+              <input id="add-channel-field" type="text" placeholder="Enter a RSS feed URL…">
             </div>
             <div id="channel-controls-floating">
               <a id="add-button-wrapper">
@@ -30,19 +31,20 @@
             </div>
           </div>
           <div id="channel-select">
-            channel selection goes here
+            <div id="tip">
+              Enter a RSS feed URL in the field above to start
+            </div>
           </div>
         </div>
       </div>
       <div id="right-panel">
-        podcast selection goes here
+        <div id="podcast-select">
+        </div>
       </div>
     </div>
     <div id="player">
       <div id="player-image">
-        player image goes here
       </div>
-      player controls go here
     </div>
   </body>
 </html>
