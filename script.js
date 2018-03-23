@@ -17,6 +17,17 @@ window.addEventListener("load", function() {
     }
     document.getElementById("add-channel-field").value = "";
   });
+
+  document.getElementById("add-channel-field").addEventListener("keyup", function(event) {
+    event.preventDefault();
+    if(event.keyCode === 13) {
+      var feedUrl = document.getElementById("add-channel-field").value;
+      if(feedUrl !== ""){
+        addFeed(feedUrl);
+      }
+      document.getElementById("add-channel-field").value = "";
+    }
+  });
 });
 
 function refreshFeeds() {
@@ -34,7 +45,7 @@ function refreshFeeds() {
         console.log("AN ERROR OCCURED WHILE FETCHING URL \"" + url + "\"");
 
         if(nbProcessed >= feeds.length){
-          refreshView();
+          updateView();
         }
       };
 
@@ -64,6 +75,7 @@ function refreshFeeds() {
             var itemTitle = getTextContent(item.querySelector("title"));
             var itemDescription = getTextContent(item.querySelector("description"));
             var itemLink = getTextContent(item.querySelector("link"));
+            var itemDate = getTextContent(item.querySelector("pubDate"));
             var itemEnclosure = item.querySelector("enclosure");
 
             var itemObject = {title: itemTitle, description: itemDescription, link: itemLink, enclosure: itemEnclosure, selected: false};
@@ -84,7 +96,7 @@ function refreshFeeds() {
           /* the view is only refreshed once all feeds have been processed
           (we don't do it after request.send() because of its asynchronous nature - if you handle a large RSS feed
           there's a chance that the refresh begins before onload is fired) */
-          refreshView();
+          updateView();
         }
       };
 
@@ -92,7 +104,7 @@ function refreshFeeds() {
     });
   }
   else {
-    refreshView();
+    updateView();
   }
 }
 
@@ -125,7 +137,7 @@ function setVideoMode(){
   document.querySelector("body").setAttribute("class", "video-mode");
 }
 
-function refreshView(){
+function updateView(){
   var channelSelectPanel = document.getElementById("channel-select");
   removeAllChildren(channelSelectPanel);
 
@@ -147,6 +159,7 @@ function refreshView(){
     var link = document.createElement("a");
     link.setAttribute("class", "channel-link");
     link.setAttribute("href", channel.link);
+    link.setAttribute("target", "_blank");
     var linkIcon = document.createElement("img");
     linkIcon.setAttribute("class", "channel-link-icon");
     linkIcon.setAttribute("src", "assets/ic_public_white_48px.svg");
@@ -167,25 +180,7 @@ function refreshView(){
     });
 
     titleWrapper.addEventListener("click", function() {
-      if(!container.classList.contains("selected")) {
-        if(container.parentNode !== null){
-          if(container.parentNode.querySelector(".selected") !== null) {
-            container.parentNode.querySelector(".selected").classList.remove("selected");
-          }
-        }
-
-        channels.forEach(function(chan) {
-          chan.selected = false;
-        });
-
-        container.className += " selected";
-        channel.selected = true;
-      }
-      else {
-        container.classList.remove("selected");
-        channel.selected = false;
-      }
-
+      toggleSelected(container, channel);
       updatePodcasts();
     });
 
@@ -215,8 +210,21 @@ function updatePodcasts() {
         podcastWrapper.appendChild(description);
         container.appendChild(podcastWrapper);
 
+        container.addEventListener("click", function() {
+          if(toggleSelected(container, item)) {
+            //TODO play
+          }
+        });
+
         podcastSelectPanel.appendChild(container);
       });
+
+      if(channel.image === null){
+        document.getElementById("player-image").setAttribute("src", "assets/ic_image_white_48px.svg");
+      }
+      else {
+        document.getElementById("player-image").setAttribute("src", channel.image);
+      }
     }
   });
 }
@@ -224,6 +232,46 @@ function updatePodcasts() {
 function removeAllChildren(node) {
   while(node.hasChildNodes()){
     node.removeChild(node.firstChild);
+  }
+}
+
+function toggleSelected(domObject, object) {
+  var t;
+  if(channels.includes(object)) {
+    t = "channel";
+  }
+  else {
+    t = "item";
+  }
+
+  if(!domObject.classList.contains("selected")) {
+    if(domObject.parentNode !== null){
+      if(domObject.parentNode.querySelector(".selected") !== null) {
+        domObject.parentNode.querySelector(".selected").classList.remove("selected");
+      }
+    }
+
+    if(t === "channel") {
+      channels.forEach(function(channel) {
+        channel.selected = false;
+      });
+    }
+    else if(t === "item") {
+      channels.forEach(function(channel) {
+        channel.items.forEach(function(item) {
+          item.selected = false;
+        });
+      });
+    }
+
+    domObject.className += " selected";
+    object.selected = true;
+    return(true);
+  }
+  else {
+    domObject.classList.remove("selected");
+    object.selected = false;
+    return(false);
   }
 }
 
