@@ -77,8 +77,17 @@ function refreshFeeds() {
             var itemLink = getTextContent(item.querySelector("link"));
             var itemDate = getTextContent(item.querySelector("pubDate"));
             var itemEnclosure = item.querySelector("enclosure");
+            var itemMediaUrl = itemEnclosure.getAttribute("url");
+            var itemMediaLength = itemEnclosure.getAttribute("length");
+            var itemMediaType = null;
+            if(itemEnclosure.getAttribute("type") === "audio/mpeg") {
+              itemMediaType = "audio";
+            }
+            else if (itemEnclosure.getAttribute("type") === "video/mp4") {
+              itemMediaType = "video";
+            }
 
-            var itemObject = {title: itemTitle, description: itemDescription, link: itemLink, enclosure: itemEnclosure, selected: false};
+            var itemObject = {title: itemTitle, description: itemDescription, link: itemLink, mediaUrl: itemMediaUrl, mediaLength: itemMediaLength, mediaType: itemMediaType, selected: false};
 
             items.push(itemObject);
           });
@@ -244,6 +253,11 @@ function toggleSelected(domObject, object) {
     t = "item";
   }
 
+  var focusTitle = document.getElementById("player-content-focus-title");
+  var focusDescription = document.getElementById("player-content-focus-description");
+  focusTitle.textContent = "";
+  focusDescription.textContent = "";
+
   if(!domObject.classList.contains("selected")) {
     if(domObject.parentNode !== null){
       if(domObject.parentNode.querySelector(".selected") !== null) {
@@ -266,6 +280,10 @@ function toggleSelected(domObject, object) {
 
     domObject.className += " selected";
     object.selected = true;
+    if(t === "item"){
+      focusTitle.textContent = object.title;
+      focusDescription.textContent = object.description;
+    }
     return(true);
   }
   else {
