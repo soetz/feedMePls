@@ -52,29 +52,38 @@
         <div id="player-wrapper">
           <div id="player-controls-wrapper">
             <div id="player-buttons-wrapper">
-              <a id="fullscreen-button-wrapper">
-                <img id="fullscreen-button-icon" src="assets/ic_fullscreen_white_48px.svg" />
+              <a id="fullscreen-button-wrapper" class="player-button-wrapper">
+                <img id="fullscreen-button-icon" src="assets/ic_fullscreen_white_48px.svg" class="player-button-icon" />
               </a>
-              <a id="previous-button-wrapper">
-                <img id="previous-button-icon" src="assets/ic_skip_previous_white_48px.svg" />
+              <a id="previous-button-wrapper" class="player-button-wrapper">
+                <img id="previous-button-icon" src="assets/ic_skip_previous_white_48px.svg" class="player-button-icon" />
               </a>
-              <a id="replay10-button-wrapper">
-                <img id="replay10-button-icon" src="assets/ic_replay_10_white_48px.svg" />
+              <a id="replay10-button-wrapper" class="player-button-wrapper">
+                <img id="replay10-button-icon" src="assets/ic_replay_10_white_48px.svg" class="player-button-icon" />
               </a>
-              <a id="playpause-button-wrapper">
-                <img id="playpause-button-icon" src="assets/ic_play_circle_outline_white_48px.svg" />
+              <a id="playpause-button-wrapper" class="player-button-wrapper">
+                <img id="playpause-button-icon" src="assets/ic_play_circle_outline_white_48px.svg" class="player-button-icon" />
               </a>
-              <a id="forward10-button-wrapper">
-                <img id="forward10-button-icon" src="assets/ic_forward_10_white_48px.svg" />
+              <a id="forward10-button-wrapper" class="player-button-wrapper">
+                <img id="forward10-button-icon" src="assets/ic_forward_10_white_48px.svg" class="player-button-icon" />
               </a>
-              <a id="next-button-wrapper">
-                <img id="next-button-icon" src="assets/ic_skip_next_white_48px.svg" />
+              <a id="next-button-wrapper" class="player-button-wrapper">
+                <img id="next-button-icon" src="assets/ic_skip_next_white_48px.svg" class="player-button-icon" />
               </a>
-              <a id="article-button-wrapper">
-                <img id="article-button-icon" src="assets/ic_public_white_48px.svg" />
+              <a id="article-button-wrapper" class="player-button-wrapper">
+                <img id="article-button-icon" src="assets/ic_public_white_48px.svg" class="player-button-icon" />
               </a>
             </div>
             <div id="player-slider-wrapper">
+              <div id="current-time" class="time">
+                0:00
+              </div>
+              <div id="progress-bar-wrapper">
+                <input type="range" id="progress-bar" />
+              </div>
+              <div id="total-time" class="time">
+                0:00
+              </div>
             </div>
           </div>
           <div id="player-content-focus-wrapper">

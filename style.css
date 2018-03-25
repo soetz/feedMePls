@@ -246,6 +246,136 @@ body {
   align-items: center;
 }
 
+#player-buttons-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.player-button-wrapper {
+  height: 38px;
+  cursor: pointer;
+}
+
+#playpause-button-wrapper {
+  height: 64px;
+}
+
+.player-button-icon {
+  height: 38px;
+  width: 44px;
+}
+
+#playpause-button-icon {
+  height: 64px;
+  width: 72px;
+}
+
+#player-slider-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+#progress-bar-wrapper {
+  width: 100%;
+}
+
+#progress-bar {
+  position: relative;
+  right: 13px;
+  top: 2px;
+  -webkit-appearance: none;
+  border: 1px solid #222;
+  background-color: #222;
+  width: 100%;
+}
+
+#progress-bar::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  background: #444;
+  border: none;
+  border-radius: 3px;
+  position: relative;
+  left: 10px;
+  bottom: 4px;
+}
+
+#progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #fff;
+  margin-top: -4px;
+  position: relative;
+  bottom: 1px;
+}
+
+#progress-bar:focus {
+  outline: none;
+}
+
+#progress-bar::-moz-range-track {
+  width: 100%;
+  height: 5px;
+  background: #444;
+  border: none;
+  border-radius: 3px;
+}
+
+#progress-bar::-moz-range-thumb {
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+#progress-bar:-moz-focusring {
+  outline: 1px solid #222;
+  outline-offset: -1px;
+}
+
+#progress-bar::-ms-track {
+  width: 100%;
+  height: 5px;
+  background: transparent;
+  border-color: transparent;
+  border-width: 6px 0;
+  color: transparent;
+}
+
+#progress-bar::-ms-fill-lower {
+  background: #444;
+  border-radius: 10px;
+}
+
+#progress-bar::-ms-fill-upper {
+  background: #444;
+  border-radius: 10px;
+}
+
+#progress-bar::-ms-thumb {
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+
+.time {
+  min-width: 50px;
+  text-align: center;
+  font-size: 0.8em;
+  font-weight: 300;
+  color: #ccc;
+}
+
 #player-content-focus-wrapper {
   min-width: 200px;
   width: 40%;
