@@ -5,6 +5,7 @@ feeds = ["http://radiofrance-podcast.net/podcast09/rss_14089.xml", "http://rss.c
 channels = [];
 mode = "channel-select";
 nowPlaying = null;
+isPlaying = false;
 
 window.addEventListener("load", function() {
   document.getElementById("refresh-button-wrapper").addEventListener("click", function() {
@@ -32,7 +33,35 @@ window.addEventListener("load", function() {
 
   document.getElementById("progress-bar").value = 0;
   document.getElementById("progress-bar").addEventListener("change", function(){
-    console.log(document.getElementById("progress-bar").value);
+    if(nowPlaying.mediaType === "audio"){
+      document.getElementById("audio-media").currentTime = document.getElementById("audio-media").duration * document.getElementById("progress-bar").value;
+    }
+  });
+
+  document.getElementById("playpause-button-wrapper").addEventListener("click", function() {
+    setPlaying(!isPlaying);
+  });
+
+  document.getElementById("replay10-button-wrapper").addEventListener("click", function() {
+    var media;
+    if(nowPlaying.mediaType === "audio"){
+      media = document.getElementById("audio-media");
+    }
+
+    if(media.currentTime - 10 > 0){
+      media.currentTime = media.currentTime - 10;
+    }
+  });
+
+  document.getElementById("forward10-button-wrapper").addEventListener("click", function() {
+    var media;
+    if(nowPlaying.mediaType === "audio"){
+      media = document.getElementById("audio-media");
+    }
+
+    if(media.currentTime + 10 < media.duration){
+      media.currentTime = media.currentTime + 10;
+    }
   });
 });
 
@@ -335,6 +364,7 @@ function addAudio(podcast) {
     playPromise.then(_ => {
       totalDuration(audio.duration);
       actualDuration();
+      setPlaying(true);
     })
     .catch(error => {
       //pause UI
@@ -348,6 +378,23 @@ function addAudio(podcast) {
 
 function addVideo(podcast) {
 
+}
+
+function setPlaying(playing) {
+  if(playing){
+    isPlaying = true;
+    document.getElementById("playpause-button-icon").setAttribute("src", "assets/ic_pause_circle_outline_white_48px.svg");
+    if(nowPlaying.mediaType === "audio"){
+      document.getElementById("audio-media").play();
+    }
+  }
+  else {
+    isPlaying = false;
+    document.getElementById("playpause-button-icon").setAttribute("src", "assets/ic_play_circle_outline_white_48px.svg");
+    if(nowPlaying.mediaType === "audio"){
+      document.getElementById("audio-media").pause();
+    }
+  }
 }
 
 function totalDuration(duration) {
