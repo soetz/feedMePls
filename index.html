@@ -8,25 +8,26 @@
     <link rel="icon" href="assets/ic_rss_feed_black_48dp_2x.png" />
     <link rel="stylesheet" href="style.css" />
     <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,700&amp;subset=latin-ext" rel="stylesheet" />
+    <script src="script.js"></script>
   </head>
   <body class="channel-select-mode">
-  <script src="script.js">Votre navigateur est trop vieux !</script>
+    <div id="audio-container">
+    </div>
     <div id="separator">
       <div id="left-panel">
         <div id="video-play">
-          video player goes here
         </div>
         <div id="channel-select-wrapper">
           <div id="channel-controls">
             <div id="add-channel-field-wrapper">
-              <input id="add-channel-field" type="text" placeholder="Enter a RSS feed URL…">
+              <input id="add-channel-field" type="text" placeholder="Enter a RSS feed URL…" />
             </div>
             <div id="channel-controls-floating">
               <a id="add-button-wrapper">
-                <img id="add-button-icon" src="assets/ic_add_white_48px.svg">
+                <img id="add-button-icon" src="assets/ic_add_white_48px.svg" alt="Add feed" />
               </a>
               <a id="refresh-button-wrapper">
-                <img id="refresh-button-icon" src="assets/ic_refresh_white_48px.svg">
+                <img id="refresh-button-icon" src="assets/ic_refresh_white_48px.svg" alt="Refresh feeds" />
               </a>
             </div>
           </div>
@@ -45,7 +46,7 @@
     <div id="player-panel">
       <div id="player-image-wrapper">
         <div id="player-image-center">
-          <img id="player-image" src="assets/ic_image_white_48px.svg" />
+          <img id="player-image" src="assets/ic_image_white_48px.svg" alt="Feed image" />
         </div>
       </div>
       <div id="player-container">
@@ -53,25 +54,25 @@
           <div id="player-controls-wrapper">
             <div id="player-buttons-wrapper">
               <a id="fullscreen-button-wrapper" class="player-button-wrapper">
-                <img id="fullscreen-button-icon" src="assets/ic_fullscreen_white_48px.svg" class="player-button-icon" />
+                <img id="fullscreen-button-icon" src="assets/ic_fullscreen_white_48px.svg" class="player-button-icon" alt="Fullscreen" />
               </a>
               <a id="previous-button-wrapper" class="player-button-wrapper">
-                <img id="previous-button-icon" src="assets/ic_skip_previous_white_48px.svg" class="player-button-icon" />
+                <img id="previous-button-icon" src="assets/ic_skip_previous_white_48px.svg" class="player-button-icon" alt="Previous" />
               </a>
               <a id="replay10-button-wrapper" class="player-button-wrapper">
-                <img id="replay10-button-icon" src="assets/ic_replay_10_white_48px.svg" class="player-button-icon" />
+                <img id="replay10-button-icon" src="assets/ic_replay_10_white_48px.svg" class="player-button-icon" alt="Replay the laste 10 seconds" />
               </a>
               <a id="playpause-button-wrapper" class="player-button-wrapper">
-                <img id="playpause-button-icon" src="assets/ic_play_circle_outline_white_48px.svg" class="player-button-icon" />
+                <img id="playpause-button-icon" src="assets/ic_play_circle_outline_white_48px.svg" class="player-button-icon" alt="Play or pause" />
               </a>
               <a id="forward10-button-wrapper" class="player-button-wrapper">
-                <img id="forward10-button-icon" src="assets/ic_forward_10_white_48px.svg" class="player-button-icon" />
+                <img id="forward10-button-icon" src="assets/ic_forward_10_white_48px.svg" class="player-button-icon" alt="Forward to 10 seconds later" />
               </a>
               <a id="next-button-wrapper" class="player-button-wrapper">
-                <img id="next-button-icon" src="assets/ic_skip_next_white_48px.svg" class="player-button-icon" />
+                <img id="next-button-icon" src="assets/ic_skip_next_white_48px.svg" class="player-button-icon" alt="Next" />
               </a>
-              <a id="article-button-wrapper" class="player-button-wrapper">
-                <img id="article-button-icon" src="assets/ic_public_white_48px.svg" class="player-button-icon" />
+              <a id="article-button-wrapper" class="player-button-wrapper" target="_blank">
+                <img id="article-button-icon" src="assets/ic_public_white_48px.svg" class="player-button-icon" alt="Article" />
               </a>
             </div>
             <div id="player-slider-wrapper">
@@ -79,7 +80,7 @@
                 0:00
               </div>
               <div id="progress-bar-wrapper">
-                <input type="range" id="progress-bar" />
+                <input id="progress-bar" type="range" min="0" max="1" step="any" />
               </div>
               <div id="total-time" class="time">
                 0:00

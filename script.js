@@ -4,6 +4,7 @@ const feedPrefix = "https://crossorigin.me/";
 feeds = ["http://radiofrance-podcast.net/podcast09/rss_14089.xml", "http://rss.cnn.com/services/podcasting/studentnews/rss.xml"];
 channels = [];
 mode = "channel-select";
+nowPlaying = null;
 
 window.addEventListener("load", function() {
   document.getElementById("refresh-button-wrapper").addEventListener("click", function() {
@@ -27,6 +28,11 @@ window.addEventListener("load", function() {
       }
       document.getElementById("add-channel-field").value = "";
     }
+  });
+
+  document.getElementById("progress-bar").value = 0;
+  document.getElementById("progress-bar").addEventListener("change", function(){
+    console.log(document.getElementById("progress-bar").value);
   });
 });
 
@@ -78,7 +84,6 @@ function refreshFeeds() {
             var itemDate = getTextContent(item.querySelector("pubDate"));
             var itemEnclosure = item.querySelector("enclosure");
             var itemMediaUrl = itemEnclosure.getAttribute("url");
-            var itemMediaLength = itemEnclosure.getAttribute("length");
             var itemMediaType = null;
             if(itemEnclosure.getAttribute("type") === "audio/mpeg") {
               itemMediaType = "audio";
@@ -87,7 +92,7 @@ function refreshFeeds() {
               itemMediaType = "video";
             }
 
-            var itemObject = {title: itemTitle, description: itemDescription, link: itemLink, mediaUrl: itemMediaUrl, mediaLength: itemMediaLength, mediaType: itemMediaType, selected: false};
+            var itemObject = {title: itemTitle, description: itemDescription, link: itemLink, mediaUrl: itemMediaUrl, mediaType: itemMediaType, selected: false};
 
             items.push(itemObject);
           });
@@ -172,6 +177,7 @@ function updateView(){
     var linkIcon = document.createElement("img");
     linkIcon.setAttribute("class", "channel-link-icon");
     linkIcon.setAttribute("src", "assets/ic_public_white_48px.svg");
+    linkIcon.setAttribute("alt", "Link to the feed source");
     var description = document.createElement("div");
     description.setAttribute("class", "channel-description");
     description.textContent = channel.description;
@@ -253,13 +259,8 @@ function toggleSelected(domObject, object) {
     t = "item";
   }
 
-  var focusTitle = document.getElementById("player-content-focus-title");
-  var focusDescription = document.getElementById("player-content-focus-description");
-  focusTitle.textContent = "";
-  focusDescription.textContent = "";
-
   if(!domObject.classList.contains("selected")) {
-    if(domObject.parentNode !== null){
+    if(domObject.parentNode !== null) {
       if(domObject.parentNode.querySelector(".selected") !== null) {
         domObject.parentNode.querySelector(".selected").classList.remove("selected");
       }
@@ -281,15 +282,96 @@ function toggleSelected(domObject, object) {
     domObject.className += " selected";
     object.selected = true;
     if(t === "item"){
-      focusTitle.textContent = object.title;
-      focusDescription.textContent = object.description;
+      play(object);
     }
     return(true);
   }
   else {
     domObject.classList.remove("selected");
     object.selected = false;
+    nowPlaying = null;
     return(false);
+  }
+}
+
+function play(podcast) {
+  removeCurrentMedia();
+  var focusTitle = document.getElementById("player-content-focus-title");
+  var focusDescription = document.getElementById("player-content-focus-description");
+  var articleLink = document.getElementById("article-button-wrapper");
+  focusTitle.textContent = "";
+  focusDescription.textContent = "";
+  articleLink.removeAttribute("href");
+
+  focusTitle.textContent = podcast.title;
+  focusDescription.textContent = podcast.description;
+  articleLink.setAttribute("href", podcast.link);
+  nowPlaying = podcast;
+  if(podcast.mediaType === "audio"){
+    addAudio(podcast);
+  }
+  else if(podcast.mediaType === "video"){
+    addVideo(podcast);
+  }
+}
+
+function removeCurrentMedia() {
+  removeAllChildren(document.getElementById("audio-container"));
+  removeAllChildren(document.getElementById("video-play"));
+}
+
+function addAudio(podcast) {
+  var container = document.getElementById("audio-container");
+  var audio = document.createElement("audio");
+  audio.setAttribute("id", "audio-media");
+  var source = document.createElement("source");
+  source.setAttribute("src", podcast.mediaUrl);
+
+  audio.appendChild(source);
+  container.appendChild(audio);
+
+  var playPromise = audio.play();
+  if(playPromise !== undefined){
+    playPromise.then(_ => {
+      totalDuration(audio.duration);
+      actualDuration();
+    })
+    .catch(error => {
+      //pause UI
+    });
+
+    audio.addEventListener("timeupdate", function() {
+      actualDuration();
+    });
+  }
+}
+
+function addVideo(podcast) {
+
+}
+
+function totalDuration(duration) {
+  var sec = duration % 60;
+  var min = (duration - sec) / 60;
+  var extraZero = "";
+  if(sec < 10){
+    extraZero = "0";
+  }
+  document.getElementById("total-time").textContent = min + ":" + extraZero + Math.floor(sec);
+}
+
+function actualDuration() {
+  if(nowPlaying.mediaType === "audio"){
+    var time = document.getElementById("audio-media").currentTime;
+    var sec = time % 60;
+    var min = (time - sec) / 60;
+    var extraZero = "";
+    if(sec < 10){
+      extraZero = "0";
+    }
+    document.getElementById("current-time").textContent = min + ":" + extraZero + Math.floor(sec);
+
+    document.getElementById("progress-bar").value = time / document.getElementById("audio-media").duration;
   }
 }
 

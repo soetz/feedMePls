@@ -9,6 +9,16 @@ body {
   color: white;
 }
 
+/* --- AUDIO --- */
+
+#audio-container {
+
+}
+
+audio {
+  display: none;
+}
+
 /* --- SEPARATOR --- */
 
 #separator {
