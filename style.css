@@ -413,7 +413,7 @@ audio {
 
 /* --- PLAYER IMAGE --- */
 
-#player-image-wrapper {
+#player-visual-wrapper {
   background-color: #444;
   position: fixed;
   height: 200px;
@@ -436,6 +436,6 @@ audio {
   width: 100%;
 }
 
-.video-mode #player-image-wrapper {
+.video-mode #player-visual-wrapper {
     display: none;
 }
