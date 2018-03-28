@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 const feedPrefix = "https://crossorigin.me/";
-feeds = ["http://radiofrance-podcast.net/podcast09/rss_14089.xml", "http://rss.cnn.com/services/podcasting/studentnews/rss.xml"];
+feeds = [];
 channels = [];
 mode = "channel-select";
 nowPlaying = null;
@@ -37,7 +37,7 @@ window.addEventListener("load", function() {
       document.getElementById("audio-media").currentTime = document.getElementById("audio-media").duration * document.getElementById("progress-bar").value;
     }
     else {
-      document.getElementById("video-media").currentTime = document.getElementById("video-media").duration * document.getElementById("progress-bar").value;
+      document.getElementById("visual").currentTime = document.getElementById("visual").duration * document.getElementById("progress-bar").value;
     }
   });
 
@@ -54,7 +54,7 @@ window.addEventListener("load", function() {
         media = document.getElementById("audio-media");
       }
       else {
-        media = document.getElementById("video-media");
+        media = document.getElementById("visual");
       }
 
       if(media.currentTime - 10 > 0){
@@ -73,7 +73,7 @@ window.addEventListener("load", function() {
         media = document.getElementById("audio-media");
       }
       else {
-        media = document.getElementById("video-media");
+        media = document.getElementById("visual");
       }
 
       if(media.currentTime + 10 < media.duration){
@@ -89,7 +89,7 @@ window.addEventListener("load", function() {
         media = document.getElementById("audio-media");
       }
       else {
-        media = document.getElementById("video-media");
+        media = document.getElementById("visual");
       }
 
       if(media.currentTime < 5){
@@ -132,7 +132,7 @@ window.addEventListener("load", function() {
           media = document.getElementById("audio-media");
         }
         else {
-          media = document.getElementById("video-media");
+          media = document.getElementById("visual");
         }
 
         if(media.currentTime - 5 > 0){
@@ -154,7 +154,7 @@ window.addEventListener("load", function() {
           media = document.getElementById("audio-media");
         }
         else {
-          media = document.getElementById("video-media");
+          media = document.getElementById("visual");
         }
 
         if(media.currentTime + 5 < media.duration){
@@ -197,7 +197,6 @@ function refreshFeeds() {
               rssXml = parser.parseFromString(request.responseText, "text/xml");
             }
           }
-          //console.log(rssXml);
 
           var channelTitle = getTextContent(rssXml.querySelector("channel > title"));
           var channelDescription = getTextContent(rssXml.querySelector("channel > description"));
@@ -212,13 +211,17 @@ function refreshFeeds() {
             var itemLink = getTextContent(item.querySelector("link"));
             var itemDate = getTextContent(item.querySelector("pubDate"));
             var itemEnclosure = item.querySelector("enclosure");
-            var itemMediaUrl = itemEnclosure.getAttribute("url");
+            var itemMediaUrl = null;
             var itemMediaType = null;
-            if(itemEnclosure.getAttribute("type") === "audio/mpeg") {
-              itemMediaType = "audio";
-            }
-            else if (itemEnclosure.getAttribute("type") === "video/mp4") {
-              itemMediaType = "video";
+            if(itemEnclosure !== null){
+              itemMediaUrl = itemEnclosure.getAttribute("url");
+              itemMediaType = null;
+              if(itemEnclosure.getAttribute("type").includes("audio")) {
+                itemMediaType = "audio";
+              }
+              else if (itemEnclosure.getAttribute("type").includes("video")) {
+                itemMediaType = "video";
+              }
             }
 
             var itemObject = {title: itemTitle, description: itemDescription, link: itemLink, mediaUrl: itemMediaUrl, mediaType: itemMediaType, representation: null, selected: false};
@@ -228,8 +231,9 @@ function refreshFeeds() {
 
           var channelObject = {feed: feed, title: channelTitle, description: channelDescription, link: channelLink, image: channelImage, items: items, selected: false};
 
-          //console.log(channelObject);
-          channels.push(channelObject);
+          if(channelObject.title !== null){
+            channels.push(channelObject);
+          }
         }
         else {
           console.log("ERROR " + request.status);
@@ -273,6 +277,11 @@ function removeFeed(feed) {
 }
 
 function setChannelSelectMode(){
+  var paused = true;
+  var video = document.getElementById("visual");
+  if(video.tagName !== "IMG" && !video.paused && !video.ended){
+    paused = false;
+  }
   mode = "channel-select";
   document.querySelector("body").setAttribute("class", "channel-select-mode");
   var visual = document.getElementById("visual-wrapper");
@@ -280,15 +289,26 @@ function setChannelSelectMode(){
   var panel = document.getElementById("player-panel");
   panel.insertBefore(visual, panel.firstChild);
   document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_white_48px.svg");
+  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
+    setTimeout(function() {setPlaying(true);}, 100);
+  }
 }
 
 function setVideoMode(){
+  var paused = true;
+  var video = document.getElementById("visual");
+  if(video.tagName !== "IMG" && !video.paused && !video.ended){
+    paused = false;
+  }
   mode = "video";
   document.querySelector("body").setAttribute("class", "video-mode");
   var visual = document.getElementById("visual-wrapper");
   visual.remove();
   document.getElementById("fullscreen-wrapper").appendChild(visual);
   document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_exit_white_48px.svg");
+  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
+    setTimeout(function() {setPlaying(true);}, 100);
+  }
 }
 
 function updateView(){
@@ -373,33 +393,35 @@ function updatePodcasts() {
 
         container.addEventListener("click", function() {
           toggleSelected(container, item);
+          if(item.mediaType === "video"){
+            setVideoMode();
+          }
         });
 
         podcastSelectPanel.appendChild(container);
       });
 
-      var visualWrapper = document.getElementById("visual-wrapper");
-      removeAllChildren(visualWrapper);
+      if(nowPlaying !== null){
+        if(nowPlaying.mediaType === "audio"){
+          var visualWrapper = document.getElementById("visual-wrapper");
+          removeAllChildren(visualWrapper);
 
-      if(nowPlaying === null || nowPlaying.mediaType === "audio"){
-        var imageCenter = document.createElement("div");
-        imageCenter.setAttribute("id", "visual-center");
-        var image = document.createElement("img");
-        image.setAttribute("id", "visual");
-        image.setAttribute("alt", "Feed image");
-        imageCenter.appendChild(image);
+          var imageCenter = document.createElement("div");
+          imageCenter.setAttribute("id", "visual-center");
+          var image = document.createElement("img");
+          image.setAttribute("id", "visual");
+          image.setAttribute("alt", "Feed image");
+          imageCenter.appendChild(image);
 
-        if(channel.image === null){
-          image.setAttribute("src", "assets/ic_image_white_48px.svg");
+          if(channel.image === null){
+            image.setAttribute("src", "assets/ic_image_white_48px.svg");
+          }
+          else {
+            image.setAttribute("src", channel.image);
+          }
+
+          visualWrapper.appendChild(imageCenter);
         }
-        else {
-          image.setAttribute("src", channel.image);
-        }
-
-        visualWrapper.appendChild(imageCenter);
-      }
-      else {
-        //TODO ajout du lecteur
       }
     }
   });
@@ -528,18 +550,23 @@ function playNext() {
 }
 
 function removeCurrentMedia() {
-  removeAllChildren(document.getElementById("audio-container"));
+  if(document.getElementById("audio-container") !== null){
+    document.getElementById("audio-container").remove();
+  }
+  if(document.getElementById("video-container") !== null){
+    document.getElementById("video-container").remove();
+  }
 
   channels.forEach(function(channel) {
     if(channel.selected) {
       var visualWrapper = document.getElementById("visual-wrapper");
       removeAllChildren(visualWrapper);
-      var imageCenter = document.createElement("div");
-      imageCenter.setAttribute("id", "visual-center");
+      var visualCenter = document.createElement("div");
+      visualCenter.setAttribute("id", "visual-center");
       var image = document.createElement("img");
       image.setAttribute("id", "visual");
       image.setAttribute("alt", "Feed image");
-      imageCenter.appendChild(image);
+      visualCenter.appendChild(image);
 
       if(channel.image === null){
         image.setAttribute("src", "assets/ic_image_white_48px.svg");
@@ -548,13 +575,19 @@ function removeCurrentMedia() {
         image.setAttribute("src", channel.image);
       }
 
-      visualWrapper.appendChild(imageCenter);
+      visualWrapper.appendChild(visualCenter);
     }
   });
 }
 
 function addAudio(podcast) {
   var container = document.getElementById("audio-container");
+  if(container === null){
+    container = document.createElement("div");
+    container.setAttribute("id", "audio-container");
+    var body = document.getElementsByTagName("body")[0];
+    body.insertBefore(container, body.firstChild);
+  }
   var audio = document.createElement("audio");
   audio.setAttribute("id", "audio-media");
   var source = document.createElement("source");
@@ -585,7 +618,35 @@ function addAudio(podcast) {
 }
 
 function addVideo(podcast) {
+  var media = document.getElementById("visual");
+  if(media.tagName === "IMG"){
+    document.getElementById("visual").remove();
+    media = document.createElement("video");
+    media.setAttribute("id", "visual");
+    removeAllChildren(document.getElementById("visual-center"));
+    document.getElementById("visual-center").appendChild(media);
+  }
+  media.setAttribute("src", podcast.mediaUrl);
 
+  var playPromise = media.play();
+  if(playPromise !== undefined){
+    playPromise.then(_ => {
+      totalDuration(media.duration);
+      actualDuration();
+      setPlaying(true);
+    })
+    .catch(error => {
+      setPlaying(false);
+    });
+
+    media.addEventListener("timeupdate", function() {
+      actualDuration();
+    });
+
+    media.addEventListener("ended", function() {
+      playNext();
+    });
+  }
 }
 
 function setPlaying(playing) {
@@ -596,7 +657,7 @@ function setPlaying(playing) {
       document.getElementById("audio-media").play();
     }
     else {
-      document.getElementById("video-media").play();
+      document.getElementById("visual").play();
     }
   }
   else {
@@ -605,8 +666,8 @@ function setPlaying(playing) {
     if(nowPlaying !== null && nowPlaying.mediaType === "audio"){
       document.getElementById("audio-media").pause();
     }
-    else {
-      document.getElementById("video-media").pause();
+    else if(nowPlaying !== null){
+      document.getElementById("visual").pause();
     }
   }
 }
@@ -628,7 +689,7 @@ function actualDuration() {
       media = document.getElementById("audio-media");
     }
     else {
-      media = document.getElementById("video-media");
+      media = document.getElementById("visual");
     }
 
     var time = media.currentTime;
