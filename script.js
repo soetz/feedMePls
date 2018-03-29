@@ -8,6 +8,12 @@ nowPlaying = null;
 isPlaying = false;
 
 window.addEventListener("load", function() {
+  var feedsStorage = JSON.parse(localStorage.getItem("fmp-feeds"));
+  if(feedsStorage !== null && feedsStorage.length > 0){
+    feeds = feedsStorage;
+    refreshFeeds();
+  }
+
   document.getElementById("refresh-button-wrapper").addEventListener("click", function() {
     refreshFeeds();
   });
@@ -272,6 +278,7 @@ function refreshFeeds() {
 function addFeed(feed) {
   if(!feeds.includes(feed)) {
     feeds.push(feed);
+    localStorage.setItem("fmp-feeds", JSON.stringify(feeds));
     refreshFeeds();
   }
 }
@@ -287,6 +294,7 @@ function removeFeed(feed) {
       }
     }
   }
+  localStorage.setItem("fmp-feeds", JSON.stringify(feeds));
   refreshFeeds();
 }
 
