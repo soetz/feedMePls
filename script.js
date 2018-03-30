@@ -174,6 +174,13 @@ window.addEventListener("load", function() {
     }
   });
 
+  document.addEventListener("keyup", function(event) {
+    event.preventDefault();
+    if(event.key === "Escape"){
+      setChannelSelectMode();
+    }
+  });
+
   document.getElementById("add-channel-field").addEventListener("keyup", function(event) {
     event.stopPropagation(); /* Prevents keyboard typing in the add field from
                                 triggering player keyboard controls */
@@ -764,59 +771,63 @@ function removeCurrentMedia() {
 }
 
 function setChannelSelectMode(){
-  var paused = true;
-  var video = document.getElementById("visual");
+  if(mode !== "channel-select"){
+    var paused = true;
+    var video = document.getElementById("visual");
 
-  if(video.tagName !== "IMG" && !video.paused && !video.ended){
-    paused = false;
-  }
+    if(video.tagName !== "IMG" && !video.paused && !video.ended){
+      paused = false;
+    }
 
-  mode = "channel-select";
+    mode = "channel-select";
 
-  document.querySelector("body").setAttribute("class", "channel-select-mode");
+    document.querySelector("body").setAttribute("class", "channel-select-mode");
 
-  var visual = document.getElementById("visual-wrapper");
-  visual.remove();
+    var visual = document.getElementById("visual-wrapper");
+    visual.remove();
 
-  var panel = document.getElementById("player-panel");
-  panel.insertBefore(visual, panel.firstChild);
+    var panel = document.getElementById("player-panel");
+    panel.insertBefore(visual, panel.firstChild);
 
-  document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_white_48px.svg");
+    document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_white_48px.svg");
 
-  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
-    setTimeout(function() {setPlaying(true);}, 0); /* It is odd but if we don't use setTimeout,
-                                                      the call to setPlaying(true) is "interrupted
-                                                      by a call to pause()". I think that I don't
-                                                      know JS enough to understand this… but at
-                                                      least I found a workaround ! */
+    if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
+      setTimeout(function() {setPlaying(true);}, 0); /* It is odd but if we don't use setTimeout,
+                                                        the call to setPlaying(true) is "interrupted
+                                                        by a call to pause()". I think that I don't
+                                                        know JS enough to understand this… but at
+                                                        least I found a workaround ! */
+    }
   }
 }
 
 function setVideoMode(){
-  var paused = true;
-  var video = document.getElementById("visual");
+  if(mode !== "video"){
+    var paused = true;
+    var video = document.getElementById("visual");
 
-  if(video.tagName !== "IMG" && !video.paused && !video.ended){
-    paused = false;
-  }
+    if(video.tagName !== "IMG" && !video.paused && !video.ended){
+      paused = false;
+    }
 
-  mode = "video";
+    mode = "video";
 
-  document.querySelector("body").setAttribute("class", "video-mode");
+    document.querySelector("body").setAttribute("class", "video-mode");
 
-  var visual = document.getElementById("visual-wrapper");
-  visual.remove();
+    var visual = document.getElementById("visual-wrapper");
+    visual.remove();
 
-  document.getElementById("fullscreen-wrapper").appendChild(visual);
+    document.getElementById("fullscreen-wrapper").appendChild(visual);
 
-  document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_exit_white_48px.svg");
+    document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_exit_white_48px.svg");
 
-  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
-    setTimeout(function() {setPlaying(true);}, 0); /* It is odd but if we don't use setTimeout,
-                                                      the call to setPlaying(true) is "interrupted
-                                                      by a call to pause()". I think that I don't
-                                                      know JS enough to understand this… but at
-                                                      least I found a workaround ! */
+    if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
+      setTimeout(function() {setPlaying(true);}, 0); /* It is odd but if we don't use setTimeout,
+                                                        the call to setPlaying(true) is "interrupted
+                                                        by a call to pause()". I think that I don't
+                                                        know JS enough to understand this… but at
+                                                        least I found a workaround ! */
+    }
   }
 }
 

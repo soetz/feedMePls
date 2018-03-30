@@ -370,7 +370,7 @@ audio {
 }
 
 #progress-bar:-moz-focusring {
-  outline: 1px solid #222;
+  outline: 1px solid #282828;
   outline-offset: -1px;
 }
 
