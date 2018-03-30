@@ -97,7 +97,7 @@ audio {
 }
 
 #add-channel-field-wrapper {
-  padding-right: 106px;
+  padding-right: 146px;
   padding-left: 10px;
 }
 
@@ -111,7 +111,7 @@ audio {
     right: 8px;
 }
 
-#add-button-wrapper, #refresh-button-wrapper {
+#add-button-wrapper, #refresh-button-wrapper, #delete-all-button-wrapper {
   height: 40px;
   margin-top: 13px;
   cursor: pointer;
@@ -122,7 +122,7 @@ audio {
   width: 40px;
 }
 
-#refresh-button-icon {
+#refresh-button-icon, #delete-all-button-icon {
   height: 38px;
   width: 38px;
 }

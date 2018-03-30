@@ -26,6 +26,10 @@ window.addEventListener("load", function() {
     document.getElementById("add-channel-field").value = "";
   });
 
+  document.getElementById("delete-all-button-wrapper").addEventListener("click", function() {
+    deleteAllFeeds();
+  });
+
   document.getElementById("add-channel-field").addEventListener("keyup", function(event) {
     event.preventDefault();
     if(event.keyCode === 13) {
@@ -169,6 +173,10 @@ window.addEventListener("load", function() {
       }
     }
   });
+
+  document.getElementById("add-channel-field").addEventListener("keyup", function(event) {
+    event.stopPropagation();
+  });
 });
 
 function refreshFeeds() {
@@ -298,6 +306,12 @@ function removeFeed(feed) {
   refreshFeeds();
 }
 
+function deleteAllFeeds() {
+  feeds = [];
+  localStorage.setItem("fmp-feeds", JSON.stringify(feeds));
+  refreshFeeds();
+}
+
 function setChannelSelectMode(){
   var paused = true;
   var video = document.getElementById("visual");
@@ -336,6 +350,13 @@ function setVideoMode(){
 function updateView(){
   var channelSelectPanel = document.getElementById("channel-select");
   removeAllChildren(channelSelectPanel);
+
+  if(feeds.length === 0){
+    var tip = document.createElement("div");
+    tip.setAttribute("id", "tip");
+    tip.textContent = "Enter a RSS feed URL in the field above to start";
+    document.getElementById("channel-select").appendChild(tip);
+  }
 
   channels.forEach(function(channel) {
     var container = document.createElement("div");
