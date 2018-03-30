@@ -32,7 +32,7 @@ window.addEventListener("load", function() {
 
   document.getElementById("add-channel-field").addEventListener("keyup", function(event) {
     event.preventDefault();
-    if(event.keyCode === 13) {
+    if(event.key === "Enter") {
       var feedUrl = document.getElementById("add-channel-field").value;
       if(feedUrl !== ""){
         addFeed(feedUrl);
@@ -126,7 +126,7 @@ window.addEventListener("load", function() {
 
   document.addEventListener("keyup", function(event) {
     event.preventDefault();
-    if(event.keyCode === 32){
+    if(event.key === " "){
       if(nowPlaying !== null){
         setPlaying(!isPlaying);
       }
@@ -135,7 +135,7 @@ window.addEventListener("load", function() {
 
   document.addEventListener("keyup", function(event) {
     event.preventDefault();
-    if(event.keyCode === 37){
+    if(event.key === "ArrowLeft"){
       if(nowPlaying !== null){
         var media;
         if(nowPlaying.mediaType === "audio"){
@@ -157,7 +157,7 @@ window.addEventListener("load", function() {
 
   document.addEventListener("keyup", function(event) {
     event.preventDefault();
-    if(event.keyCode === 39){
+    if(event.key === "ArrowRight"){
       if(nowPlaying !== null){
         var media;
         if(nowPlaying.mediaType === "audio"){
@@ -175,12 +175,14 @@ window.addEventListener("load", function() {
   });
 
   document.getElementById("add-channel-field").addEventListener("keyup", function(event) {
-    event.stopPropagation();
+    event.stopPropagation(); /* Prevents keyboard typing in the add field from
+                                triggering player keyboard controls */
   });
 });
 
 function refreshFeeds() {
   var selected = null;
+
   channels.forEach(function(channel) {
     if(channel.selected){
       selected = channel;
@@ -190,7 +192,7 @@ function refreshFeeds() {
   var nbProcessed = 0;
   channels = [];
 
-  if(feeds.length !== 0) {
+  if(feeds.length > 0) {
     feeds.forEach(function(feed) {
       const request = new XMLHttpRequest();
       const url = feedPrefix + feed;
@@ -199,6 +201,7 @@ function refreshFeeds() {
 
       request.onerror = function() {
         nbProcessed += 1;
+
         console.log("AN ERROR OCCURED WHILE FETCHING URL \"" + url + "\"");
 
         if(nbProcessed >= feeds.length){
@@ -269,8 +272,9 @@ function refreshFeeds() {
 
         if(nbProcessed >= feeds.length){
           /* the view is only refreshed once all feeds have been processed
-          (we don't do it after request.send() because of its asynchronous nature - if you handle a large RSS feed
-          there's a chance that the refresh begins before onload is fired) */
+          (we don't do it after request.send() because of its asynchronous
+          nature - if you handle a large RSS feed there's a chance that the
+          refresh begins before onload is fired) */
           updateView();
         }
       };
@@ -280,6 +284,197 @@ function refreshFeeds() {
   }
   else {
     updateView();
+  }
+}
+
+function updateView(){
+  var channelSelectPanel = document.getElementById("channel-select");
+  removeAllChildren(channelSelectPanel);
+
+  if(feeds.length <= 0){
+    var tip = document.createElement("div");
+    tip.setAttribute("id", "tip");
+    tip.textContent = "Enter a RSS feed URL in the field above to start";
+    document.getElementById("channel-select").appendChild(tip);
+  }
+
+  channels.forEach(function(channel) {
+    var container = document.createElement("div");
+
+    if(channel.selected){
+      container.setAttribute("class", "channel-container selected");
+    }
+    else {
+      container.setAttribute("class", "channel-container");
+    }
+
+    var titleWrapper = document.createElement("div");
+    titleWrapper.setAttribute("class", "channel-title-wrapper");
+    container.appendChild(titleWrapper);
+
+    var title = document.createElement("div");
+    title.setAttribute("class", "channel-title");
+    title.textContent = channel.title;
+    titleWrapper.appendChild(title);
+
+    var closeWrapper = document.createElement("a");
+    closeWrapper.setAttribute("class", "channel-close-wrapper");
+    titleWrapper.appendChild(closeWrapper);
+
+    var closeIcon = document.createElement("img");
+    closeIcon.setAttribute("class", "channel-close-icon");
+    closeIcon.setAttribute("src", "assets/ic_close_white_48px.svg");
+    closeIcon.setAttribute("alt", "Close the feed");
+    closeWrapper.appendChild(closeIcon);
+
+    var content = document.createElement("div");
+    content.setAttribute("class", "channel-content");
+    container.appendChild(content);
+
+    var link = document.createElement("a");
+    link.setAttribute("class", "channel-link");
+    link.setAttribute("href", channel.link);
+    link.setAttribute("target", "_blank");
+    content.appendChild(link);
+
+    var linkIcon = document.createElement("img");
+    linkIcon.setAttribute("class", "channel-link-icon");
+    linkIcon.setAttribute("src", "assets/ic_public_white_48px.svg");
+    linkIcon.setAttribute("alt", "Link to the feed source");
+    link.appendChild(linkIcon);
+
+    var description = document.createElement("div");
+    description.setAttribute("class", "channel-description");
+    description.textContent = channel.description;
+    content.appendChild(description);
+
+    closeWrapper.addEventListener("click", function() {
+      removeFeed(channel.feed);
+    });
+
+    titleWrapper.addEventListener("click", function() {
+      toggleSelected(container, channel);
+      updatePodcasts();
+    });
+
+    channelSelectPanel.appendChild(container);
+  });
+}
+
+function updatePodcasts() {
+  var podcastSelectPanel = document.getElementById("podcast-select");
+  removeAllChildren(podcastSelectPanel);
+
+  channels.forEach(function(channel) {
+    if(channel.selected) {
+      channel.items.forEach(function(item) {
+        var container = document.createElement("div");
+        container.setAttribute("class", "podcast-container");
+
+        if(item.selected){
+          container.setAttribute("class", "podcast-container selected");
+        }
+
+        var podcastWrapper = document.createElement("a");
+        podcastWrapper.setAttribute("class", "podcast-wrapper");
+        container.appendChild(podcastWrapper);
+
+        var title = document.createElement("span");
+        title.setAttribute("class", "podcast-title");
+        title.textContent = item.title;
+        podcastWrapper.appendChild(title);
+
+        var description = document.createElement("span");
+        description.setAttribute("class", "podcast-description");
+        description.textContent = " ||| " + item.description;
+        podcastWrapper.appendChild(description);
+
+        item.representation = container;
+
+        container.addEventListener("click", function() {
+          toggleSelected(container, item);
+          if(item.mediaType === "video"){
+            setVideoMode();
+          }
+        });
+
+        podcastSelectPanel.appendChild(container);
+      });
+
+      if(nowPlaying !== null){
+        if(nowPlaying.mediaType === "audio"){
+          var visualWrapper = document.getElementById("visual-wrapper");
+          removeAllChildren(visualWrapper);
+
+          var imageCenter = document.createElement("div");
+          imageCenter.setAttribute("id", "visual-center");
+          visualWrapper.appendChild(imageCenter);
+
+          var image = document.createElement("img");
+          image.setAttribute("id", "visual");
+          image.setAttribute("alt", "Feed image");
+          imageCenter.appendChild(image);
+
+          if(channel.image === null){
+            image.setAttribute("src", "assets/ic_image_white_48px.svg");
+          }
+          else {
+            image.setAttribute("src", channel.image);
+          }
+        }
+      }
+    }
+  });
+}
+
+function toggleSelected(domObject, object) {
+  /* This function is used both for channel and podcast selection, which is
+    obviously not the right way to do it. Maybe try to split this out in the
+    future. */
+  var itemType;
+
+  if(channels.includes(object)) {
+    itemType = "channel";
+  }
+  else {
+    itemType = "item";
+  }
+
+  if(!domObject.classList.contains("selected")) { /* If the node was not previously selected,
+                                                    deselect anything else … */
+    if(domObject.parentNode !== null) {
+      if(domObject.parentNode.querySelector(".selected") !== null) {
+        domObject.parentNode.querySelector(".selected").classList.remove("selected");
+      }
+    }
+
+    if(itemType === "channel") {
+      channels.forEach(function(channel) {
+        channel.selected = false;
+      });
+    }
+    else if(itemType === "item") {
+      channels.forEach(function(channel) {
+        channel.items.forEach(function(item) {
+          item.selected = false;
+        });
+      });
+    }
+
+    // … and set it selected
+    domObject.className += " selected";
+    object.selected = true;
+
+    if(itemType === "item"){
+      play(object);
+    }
+  }
+  else {
+    domObject.classList.remove("selected");
+    object.selected = false;
+    if(itemType === "item"){
+      stop();
+    }
   }
 }
 
@@ -312,258 +507,67 @@ function deleteAllFeeds() {
   refreshFeeds();
 }
 
-function setChannelSelectMode(){
-  var paused = true;
-  var video = document.getElementById("visual");
-  if(video.tagName !== "IMG" && !video.paused && !video.ended){
-    paused = false;
-  }
-  mode = "channel-select";
-  document.querySelector("body").setAttribute("class", "channel-select-mode");
-  var visual = document.getElementById("visual-wrapper");
-  visual.remove();
-  var panel = document.getElementById("player-panel");
-  panel.insertBefore(visual, panel.firstChild);
-  document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_white_48px.svg");
-  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
-    setTimeout(function() {setPlaying(true);}, 0);
-  }
-}
-
-function setVideoMode(){
-  var paused = true;
-  var video = document.getElementById("visual");
-  if(video.tagName !== "IMG" && !video.paused && !video.ended){
-    paused = false;
-  }
-  mode = "video";
-  document.querySelector("body").setAttribute("class", "video-mode");
-  var visual = document.getElementById("visual-wrapper");
-  visual.remove();
-  document.getElementById("fullscreen-wrapper").appendChild(visual);
-  document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_exit_white_48px.svg");
-  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
-    setTimeout(function() {setPlaying(true);}, 0);
-  }
-}
-
-function updateView(){
-  var channelSelectPanel = document.getElementById("channel-select");
-  removeAllChildren(channelSelectPanel);
-
-  if(feeds.length === 0){
-    var tip = document.createElement("div");
-    tip.setAttribute("id", "tip");
-    tip.textContent = "Enter a RSS feed URL in the field above to start";
-    document.getElementById("channel-select").appendChild(tip);
-  }
-
-  channels.forEach(function(channel) {
-    var container = document.createElement("div");
-    if(channel.selected){
-      container.setAttribute("class", "channel-container selected");
-    }
-    else {
-      container.setAttribute("class", "channel-container");
-    }
-    var titleWrapper = document.createElement("div");
-    titleWrapper.setAttribute("class", "channel-title-wrapper");
-    var title = document.createElement("div");
-    title.setAttribute("class", "channel-title");
-    title.textContent = channel.title;
-    var closeWrapper = document.createElement("a");
-    closeWrapper.setAttribute("class", "channel-close-wrapper");
-    var closeIcon = document.createElement("img");
-    closeIcon.setAttribute("class", "channel-close-icon");
-    closeIcon.setAttribute("src", "assets/ic_close_white_48px.svg");
-    closeIcon.setAttribute("alt", "Close the feed");
-    var content = document.createElement("div");
-    content.setAttribute("class", "channel-content");
-    var link = document.createElement("a");
-    link.setAttribute("class", "channel-link");
-    link.setAttribute("href", channel.link);
-    link.setAttribute("target", "_blank");
-    var linkIcon = document.createElement("img");
-    linkIcon.setAttribute("class", "channel-link-icon");
-    linkIcon.setAttribute("src", "assets/ic_public_white_48px.svg");
-    linkIcon.setAttribute("alt", "Link to the feed source");
-    var description = document.createElement("div");
-    description.setAttribute("class", "channel-description");
-    description.textContent = channel.description;
-    content.appendChild(link);
-    link.appendChild(linkIcon);
-    content.appendChild(description);
-    titleWrapper.appendChild(title);
-    closeWrapper.appendChild(closeIcon);
-    titleWrapper.appendChild(closeWrapper);
-    container.appendChild(titleWrapper);
-    container.appendChild(content);
-
-    closeWrapper.addEventListener("click", function() {
-      removeFeed(channel.feed);
-    });
-
-    titleWrapper.addEventListener("click", function() {
-      toggleSelected(container, channel);
-      updatePodcasts();
-    });
-
-    channelSelectPanel.appendChild(container);
-  });
-}
-
-function updatePodcasts() {
-  var podcastSelectPanel = document.getElementById("podcast-select");
-  removeAllChildren(podcastSelectPanel);
-
-  channels.forEach(function(channel) {
-    if(channel.selected) {
-      channel.items.forEach(function(item) {
-        var container = document.createElement("div");
-        container.setAttribute("class", "podcast-container");
-        if(item.selected){
-          container.setAttribute("class", "podcast-container selected");
-        }
-        var podcastWrapper = document.createElement("a");
-        podcastWrapper.setAttribute("class", "podcast-wrapper");
-        var title = document.createElement("span");
-        title.setAttribute("class", "podcast-title");
-        title.textContent = item.title;
-        var description = document.createElement("span");
-        description.setAttribute("class", "podcast-description");
-        description.textContent = " ||| " + item.description;
-
-        podcastWrapper.appendChild(title);
-        podcastWrapper.appendChild(description);
-        container.appendChild(podcastWrapper);
-
-        item.representation = container;
-
-        container.addEventListener("click", function() {
-          toggleSelected(container, item);
-          if(item.mediaType === "video"){
-            setVideoMode();
-          }
-        });
-
-        podcastSelectPanel.appendChild(container);
-      });
-
-      if(nowPlaying !== null){
-        if(nowPlaying.mediaType === "audio"){
-          var visualWrapper = document.getElementById("visual-wrapper");
-          removeAllChildren(visualWrapper);
-
-          var imageCenter = document.createElement("div");
-          imageCenter.setAttribute("id", "visual-center");
-          var image = document.createElement("img");
-          image.setAttribute("id", "visual");
-          image.setAttribute("alt", "Feed image");
-          imageCenter.appendChild(image);
-
-          if(channel.image === null){
-            image.setAttribute("src", "assets/ic_image_white_48px.svg");
-          }
-          else {
-            image.setAttribute("src", channel.image);
-          }
-
-          visualWrapper.appendChild(imageCenter);
-        }
-      }
-    }
-  });
-}
-
-function removeAllChildren(node) {
-  while(node.hasChildNodes()){
-    node.removeChild(node.firstChild);
-  }
-}
-
-function toggleSelected(domObject, object) {
-  var t;
-  if(channels.includes(object)) {
-    t = "channel";
-  }
-  else {
-    t = "item";
-  }
-
-  if(!domObject.classList.contains("selected")) {
-    if(domObject.parentNode !== null) {
-      if(domObject.parentNode.querySelector(".selected") !== null) {
-        domObject.parentNode.querySelector(".selected").classList.remove("selected");
-      }
-    }
-
-    if(t === "channel") {
-      channels.forEach(function(channel) {
-        channel.selected = false;
-      });
-    }
-    else if(t === "item") {
-      channels.forEach(function(channel) {
-        channel.items.forEach(function(item) {
-          item.selected = false;
-        });
-      });
-    }
-
-    domObject.className += " selected";
-    object.selected = true;
-    if(t === "item"){
-      play(object);
-    }
-    return(true);
-  }
-  else {
-    domObject.classList.remove("selected");
-    object.selected = false;
-    if(t === "item"){
-      stop();
-    }
-    return(false);
-  }
-}
-
 function play(podcast) {
   removeCurrentMedia();
+
   document.getElementById("progress-bar").value = 0;
   document.getElementById("current-time").textContent = "0:00";
   document.getElementById("total-time").textContent = "0:00";
-  var focusTitle = document.getElementById("player-content-focus-title");
-  var focusDescription = document.getElementById("player-content-focus-description");
-  var articleLink = document.getElementById("article-button-wrapper");
-  focusTitle.textContent = "";
-  focusDescription.innerHTML = "";
-  articleLink.removeAttribute("href");
 
-  focusTitle.textContent = podcast.title;
-  focusDescription.innerHTML = podcast.description;
-  articleLink.setAttribute("href", podcast.link);
+  document.getElementById("player-content-focus-title").textContent = podcast.title;
+  document.getElementById("player-content-focus-description").innerHTML = podcast.description;
+  document.getElementById("article-button-wrapper").setAttribute("href", podcast.link);
+
   nowPlaying = podcast;
+
   if(podcast.mediaType === "audio"){
     addAudio(podcast);
   }
-  else if(podcast.mediaType === "video"){
+  else {
     addVideo(podcast);
   }
 }
 
 function stop() {
-  setPlaying(false);
-  nowPlaying = null;
   removeCurrentMedia();
-  var focusTitle = document.getElementById("player-content-focus-title");
-  var focusDescription = document.getElementById("player-content-focus-description");
-  var articleLink = document.getElementById("article-button-wrapper");
-  focusTitle.textContent = "";
-  focusDescription.innerHTML = "";
-  articleLink.removeAttribute("href");
+
   document.getElementById("progress-bar").value = 0;
   document.getElementById("current-time").textContent = "0:00";
   document.getElementById("total-time").textContent = "0:00";
+
+  document.getElementById("player-content-focus-title").textContent = "";
+  document.getElementById("player-content-focus-description").innerHTML = "";
+  document.getElementById("article-button-wrapper").removeAttribute("href");
+
+  setPlaying(false);
+  nowPlaying = null;
+}
+
+function setPlaying(playing) {
+  if(playing){
+    isPlaying = true;
+
+    document.getElementById("playpause-button-icon").setAttribute("src", "assets/ic_pause_circle_outline_white_48px.svg");
+
+    if(nowPlaying.mediaType === "audio"){
+      document.getElementById("audio-media").play();
+    }
+    else {
+      document.getElementById("visual").play();
+    }
+  }
+  else {
+    isPlaying = false;
+
+    document.getElementById("playpause-button-icon").setAttribute("src", "assets/ic_play_circle_outline_white_48px.svg");
+
+    if(nowPlaying !== null && nowPlaying.mediaType === "audio"){
+      document.getElementById("audio-media").pause();
+    }
+    else if(nowPlaying !== null){
+      document.getElementById("visual").pause();
+    }
+  }
 }
 
 function playPrevious() {
@@ -590,65 +594,47 @@ function playNext() {
           toggleSelected(item.representation, item);
         }
         else {
-          setPlaying(false);
+          var media;
+          if(nowPlaying.mediaType === "audio"){
+            media = document.getElementById("audio-media");
+          }
+          else {
+            media = document.getElementById("visual");
+          }
+
+          media.currentTime = media.duration;
         }
       }
     });
   }
 }
 
-function removeCurrentMedia() {
-  if(document.getElementById("audio-container") !== null){
-    document.getElementById("audio-container").remove();
-  }
-  if(document.getElementById("video-container") !== null){
-    document.getElementById("video-container").remove();
-  }
-
-  channels.forEach(function(channel) {
-    if(channel.selected) {
-      var visualWrapper = document.getElementById("visual-wrapper");
-      removeAllChildren(visualWrapper);
-      var visualCenter = document.createElement("div");
-      visualCenter.setAttribute("id", "visual-center");
-      var image = document.createElement("img");
-      image.setAttribute("id", "visual");
-      image.setAttribute("alt", "Feed image");
-      visualCenter.appendChild(image);
-
-      if(channel.image === null){
-        image.setAttribute("src", "assets/ic_image_white_48px.svg");
-      }
-      else {
-        image.setAttribute("src", channel.image);
-      }
-
-      visualWrapper.appendChild(visualCenter);
-    }
-  });
-}
-
 function addAudio(podcast) {
   var container = document.getElementById("audio-container");
+
   if(container === null){
+    var body = document.getElementsByTagName("body")[0];
+
     container = document.createElement("div");
     container.setAttribute("id", "audio-container");
-    var body = document.getElementsByTagName("body")[0];
+
     body.insertBefore(container, body.firstChild);
   }
+
   var audio = document.createElement("audio");
   audio.setAttribute("id", "audio-media");
-  var source = document.createElement("source");
-  source.setAttribute("src", podcast.mediaUrl);
-
-  audio.appendChild(source);
   container.appendChild(audio);
 
+  var source = document.createElement("source");
+  source.setAttribute("src", podcast.mediaUrl);
+  audio.appendChild(source);
+
   var playPromise = audio.play();
+
   if(playPromise !== undefined){
     playPromise.then(() => {
       totalDuration(audio.duration);
-      actualDuration();
+      actualTime();
       setPlaying(true);
     })
     .catch(error => {
@@ -656,7 +642,7 @@ function addAudio(podcast) {
     });
 
     audio.addEventListener("timeupdate", function() {
-      actualDuration();
+      actualTime();
     });
 
     audio.addEventListener("ended", function() {
@@ -667,16 +653,20 @@ function addAudio(podcast) {
 
 function addVideo(podcast) {
   var media = document.getElementById("visual");
+
   if(media.tagName === "IMG"){
-    document.getElementById("visual").remove();
+    removeAllChildren(document.getElementById("visual-center"));
+
     media = document.createElement("video");
     media.setAttribute("id", "visual");
-    removeAllChildren(document.getElementById("visual-center"));
+
     document.getElementById("visual-center").appendChild(media);
   }
+
   media.setAttribute("src", podcast.mediaUrl);
 
   var playPromise = media.play();
+
   if(playPromise !== undefined){
     playPromise.then(() => {
       setPlaying(true);
@@ -686,8 +676,11 @@ function addVideo(podcast) {
     });
 
     media.addEventListener("timeupdate", function() {
-      actualDuration();
-      totalDuration(media.duration);
+      actualTime();
+      totalDuration(media.duration); /* It takes some time for the duration
+                                        attribute to be filled in the case
+                                        of video playing, so we use timeupdate
+                                        to have it quickly and without error. */
     });
 
     media.addEventListener("ended", function() {
@@ -696,41 +689,9 @@ function addVideo(podcast) {
   }
 }
 
-function setPlaying(playing) {
-  if(playing){
-    isPlaying = true;
-    document.getElementById("playpause-button-icon").setAttribute("src", "assets/ic_pause_circle_outline_white_48px.svg");
-    if(nowPlaying.mediaType === "audio"){
-      document.getElementById("audio-media").play();
-    }
-    else {
-      document.getElementById("visual").play();
-    }
-  }
-  else {
-    isPlaying = false;
-    document.getElementById("playpause-button-icon").setAttribute("src", "assets/ic_play_circle_outline_white_48px.svg");
-    if(nowPlaying !== null && nowPlaying.mediaType === "audio"){
-      document.getElementById("audio-media").pause();
-    }
-    else if(nowPlaying !== null){
-      document.getElementById("visual").pause();
-    }
-  }
-}
-
-function totalDuration(duration) {
-  var sec = duration % 60;
-  var min = (duration - sec) / 60;
-  var extraZero = "";
-  if(sec < 10){
-    extraZero = "0";
-  }
-  document.getElementById("total-time").textContent = min + ":" + extraZero + Math.floor(sec);
-}
-
-function actualDuration() {
+function actualTime() {
   var media;
+
   if(nowPlaying !== null){
     if(nowPlaying.mediaType === "audio"){
       media = document.getElementById("audio-media");
@@ -740,9 +701,11 @@ function actualDuration() {
     }
 
     var time = media.currentTime;
+
     var sec = time % 60;
     var min = (time - sec) / 60;
     var extraZero = "";
+
     if(sec < 10){
       extraZero = "0";
     }
@@ -750,6 +713,116 @@ function actualDuration() {
     document.getElementById("current-time").textContent = min + ":" + extraZero + Math.floor(sec);
 
     document.getElementById("progress-bar").value = time / media.duration;
+  }
+}
+
+function totalDuration(duration) {
+  var sec = duration % 60;
+  var min = (duration - sec) / 60;
+  var extraZero = "";
+
+  if(sec < 10){
+    extraZero = "0";
+  }
+
+  document.getElementById("total-time").textContent = min + ":" + extraZero + Math.floor(sec);
+}
+
+function removeCurrentMedia() {
+  if(document.getElementById("audio-container") !== null){
+    document.getElementById("audio-container").remove();
+  }
+
+  if(document.getElementById("video-container") !== null){
+    document.getElementById("video-container").remove();
+  }
+
+  channels.forEach(function(channel) {
+    if(channel.selected) {
+      var visualWrapper = document.getElementById("visual-wrapper");
+
+      removeAllChildren(visualWrapper);
+
+      var visualCenter = document.createElement("div");
+      visualCenter.setAttribute("id", "visual-center");
+      visualWrapper.appendChild(visualCenter);
+
+      var image = document.createElement("img");
+      image.setAttribute("id", "visual");
+      image.setAttribute("alt", "Feed image");
+
+      if(channel.image === null){
+        image.setAttribute("src", "assets/ic_image_white_48px.svg");
+      }
+      else {
+        image.setAttribute("src", channel.image);
+      }
+
+      visualCenter.appendChild(image);
+    }
+  });
+}
+
+function setChannelSelectMode(){
+  var paused = true;
+  var video = document.getElementById("visual");
+
+  if(video.tagName !== "IMG" && !video.paused && !video.ended){
+    paused = false;
+  }
+
+  mode = "channel-select";
+
+  document.querySelector("body").setAttribute("class", "channel-select-mode");
+
+  var visual = document.getElementById("visual-wrapper");
+  visual.remove();
+
+  var panel = document.getElementById("player-panel");
+  panel.insertBefore(visual, panel.firstChild);
+
+  document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_white_48px.svg");
+
+  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
+    setTimeout(function() {setPlaying(true);}, 0); /* It is odd but if we don't use setTimeout,
+                                                      the call to setPlaying(true) is "interrupted
+                                                      by a call to pause()". I think that I don't
+                                                      know JS enough to understand this… but at
+                                                      least I found a workaround ! */
+  }
+}
+
+function setVideoMode(){
+  var paused = true;
+  var video = document.getElementById("visual");
+
+  if(video.tagName !== "IMG" && !video.paused && !video.ended){
+    paused = false;
+  }
+
+  mode = "video";
+
+  document.querySelector("body").setAttribute("class", "video-mode");
+
+  var visual = document.getElementById("visual-wrapper");
+  visual.remove();
+
+  document.getElementById("fullscreen-wrapper").appendChild(visual);
+
+  document.getElementById("fullscreen-button-icon").setAttribute("src", "assets/ic_fullscreen_exit_white_48px.svg");
+
+  if(nowPlaying !== null && nowPlaying.mediaType === "video" && !paused){
+    setTimeout(function() {setPlaying(true);}, 0); /* It is odd but if we don't use setTimeout,
+                                                      the call to setPlaying(true) is "interrupted
+                                                      by a call to pause()". I think that I don't
+                                                      know JS enough to understand this… but at
+                                                      least I found a workaround ! */
+  }
+}
+
+function removeAllChildren(node) {
+  while(node.hasChildNodes()){
+    node.removeChild(node.firstChild);
   }
 }
 
